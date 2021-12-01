@@ -5,7 +5,6 @@ import (
 	"reflect"
 )
 
-
 func CopyFields(dest interface{}, src interface{}, fields ...string) (err error) {
 	at := reflect.TypeOf(dest)
 	av := reflect.ValueOf(dest)

@@ -20,7 +20,7 @@ type elasticsearchRepo7 struct {
 func NewElasticsearchClientV7(instance model.AlarmInstance) ElasticsearchRepo {
 	opts := []elasv7.ClientOptionFunc{
 		elasv7.SetURL(instance.EsUrl),
-		elasv7.SetBasicAuth(instance.EsUser,instance.EsPass),
+		elasv7.SetBasicAuth(instance.EsUser, instance.EsPass),
 	}
 	opts = append(opts, elasv7.SetGzip(true),
 		elasv7.SetHealthcheckInterval(10*time.Second),
@@ -39,7 +39,6 @@ func (es *elasticsearchRepo7) ListIndexNames() (result []string) {
 	}
 	return result
 }
-
 
 func (es *elasticsearchRepo7) SearchMessageWithField(rangeTime time.Duration, indexname string, queryfileds map[string]string) (count int64, messages []string) {
 	indexname = indexname + "-" + time.Now().Format("2006.01.02")
@@ -66,7 +65,7 @@ func (es *elasticsearchRepo7) SearchMessageWithField(rangeTime time.Duration, in
 	}
 	searchList := []string{}
 	for _, hit := range searchResult.Hits.Hits {
-		hitString := e.handleSource(hit.Source)
+		hitString := handleSource(hit.Source)
 		if hitString != "" {
 			searchList = append(searchList, hitString)
 		}
@@ -74,12 +73,10 @@ func (es *elasticsearchRepo7) SearchMessageWithField(rangeTime time.Duration, in
 	return searchResult.TotalHits(), searchList
 }
 
-
 var (
 	// 3s = 3000000000
 	timeOut = utils.GetEnvInt64WithDefault("TIMEOUT", 3000) * 1000000
 )
-
 
 func handleSource(source []byte) (listMessage string) {
 	if bytes.ContainsAny(source, "latency_human") {

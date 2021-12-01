@@ -115,5 +115,3 @@ func (w *webService) UpdateAlarmInstance(id int, instance dto.DtoAlarmInstance) 
 	}
 	return nil
 }
-
-
