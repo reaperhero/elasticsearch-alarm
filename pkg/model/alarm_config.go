@@ -1,19 +1,20 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type AlarmConfig struct {
 	gorm.Model
-	EsIndex       string   `gorm:"es_index" json:"es_index"`
-	MsgType       string   `gorm:"msg_type" json:"msg_type"`
-	MsgDefine     string   `gorm:"msg_type" json:"msg_define"`
-	CheckInterval int      `gorm:"check_interval" json:"check_interval"`
-	IsRunning     bool     `gorm:"is_running" json:"is_running"`
-	MailUser      string   `gorm:"mail_user"  json:"mail_user"`
-	DingUrl       string   `gorm:"ding_url" json:"ding_url"`
-	DingMobiles   []string `gorm:"ding_mobiles" json:"ding_mobiles"`
+	EsIndex       string `gorm:"es_index" json:"es_index"`
+	MsgType       string `gorm:"msg_type" json:"msg_type"`
+	MsgDefine     string `gorm:"msg_type" json:"msg_define"`
+	CheckInterval int    `gorm:"check_interval" json:"check_interval"`
+	IsRunning     bool   `gorm:"is_running" json:"is_running"`
+	MailUser      string `gorm:"mail_user"  json:"mail_user"`
+	DingToken     string `gorm:"ding_token" json:"ding_token"`
+	DingMobiles   string `gorm:"ding_mobiles" json:"ding_mobiles"`
 }
-
 
 type AlarmConfigInstance struct {
 	gorm.Model

@@ -19,17 +19,16 @@ func init() {
 }
 
 func connectDB() {
-	gormDB, err := gorm.Open("mysql",
-		fmt.Sprintf("%s:%s@%s/%s?charset=utf8&parseTime=True&loc=Local",
-			utils.GetEnvWithDeafult("MYSQL_USER", "root"),
-			utils.GetEnvWithDeafult("MYSQL_PASS", "Lzslov123!"),
-			utils.GetEnvWithDeafult("MYSQL_ADDR", "127.0.0.1:3306"),
-			utils.GetEnvWithDeafult("MYSQL_DB", "alarm"),
-		),
+	url := fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		utils.GetEnvWithDeafult("MYSQL_USER", "root"),
+		utils.GetEnvWithDeafult("MYSQL_PASS", "Lzslov123!"),
+		utils.GetEnvWithDeafult("MYSQL_ADDR", "127.0.0.1:3306"),
+		utils.GetEnvWithDeafult("MYSQL_DB", "alarm"),
 	)
+	fmt.Println(url)
+	gormDB, err := gorm.Open("mysql", url)
 	if err != nil {
 		logrus.Fatalf("[InitDb error ]%s", err)
 	}
 	db = gormDB
 }
-

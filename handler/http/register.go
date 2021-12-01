@@ -18,5 +18,6 @@ func RunHttpserver() {
 }
 
 func setRouter(e *echo.Group, handler httphandler) {
-	e.GET("/get",handler.getInstance)
+	e.POST("/instance/create", handler.createAlarmConfig)
+	e.GET("/instance", handler.queryInstance)
 }
