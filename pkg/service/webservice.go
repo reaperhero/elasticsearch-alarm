@@ -69,3 +69,49 @@ func (w *webService) UpdateAlarmConfigById(id int, dtoConfig dto.DtoAlarmConfig)
 	}
 	return
 }
+
+func (w *webService) CreateAlarmInstance(instance dto.DtoAlarmInstance) error {
+	if i := w.dbRepo.GetInstanceByUrl(instance.EsUrl); i != nil {
+		return pkgerr.ErrDbExistRecord
+	}
+	if err := w.dbRepo.CreateAlarmInstance(&model.AlarmInstance{
+		EsName: instance.EsName,
+		EsUrl:  instance.EsUrl,
+		EsUser: instance.EsUser,
+		EsPass: instance.EsPass,
+	}); err != nil {
+		logrus.WithField("error", err).Errorf("[webService.CreateAlarmInstance] %s", err)
+		return pkgerr.ErrDbOperation
+	}
+	return nil
+}
+
+func (w *webService) DeleteAlarmInstance(id int) error {
+	if w.dbRepo.GetAlarmConfigById(id) != nil {
+		return pkgerr.ErrDbRecord
+	}
+	if err := w.dbRepo.DeleteAlarmInstance(id); err != nil {
+		return pkgerr.ErrDbOperation
+	}
+	return nil
+}
+
+func (w *webService) ListAlarmInstance(page, size int) []model.AlarmInstance {
+	ins := w.dbRepo.ListAlarmInstance(page, size)
+	return ins
+}
+
+func (w *webService) UpdateAlarmInstance(id int, instance dto.DtoAlarmInstance) error {
+	oldInstance := w.dbRepo.GetInstanceById(id)
+	if oldInstance != nil {
+		return pkgerr.ErrDbRecord
+	}
+	if err := utils.CopyFields(oldInstance, &instance); err != nil {
+		logrus.WithField("CopyFields", err).Error()
+		return pkgerr.ErrDbRecord
+	}
+	if err := w.dbRepo.SaveAlarmInstance(oldInstance); err != nil {
+		return pkgerr.ErrDbOperation
+	}
+	return nil
+}

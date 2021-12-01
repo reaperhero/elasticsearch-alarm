@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/jinzhu/gorm"
+
 //required ：必填
 //email：验证字符串是email格式；例："email"
 //url：这将验证字符串值包含有效的网址;例："url"
@@ -27,4 +29,12 @@ type DtoAlarmConfig struct {
 type PageSize struct {
 	Page int `validate:"gte=0,lte=100" query:"page"`
 	Size int `validate:"gte=0,lte=50"  query:"size"`
+}
+
+type DtoAlarmInstance struct {
+	gorm.Model
+	EsName string `json:"es_name" validate:"required"`
+	EsUrl  string `json:"es_url" validate:"required"`
+	EsUser string `json:"es_user"`
+	EsPass string `json:"es_pass"`
 }

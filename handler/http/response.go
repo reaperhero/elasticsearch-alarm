@@ -26,6 +26,9 @@ func handleErr(err error, data interface{}) response {
 	case errors.ErrDbRecord:
 		resp.Code = resp.Code + 3
 		resp.Msg = err.Error()
+	case errors.ErrDbExistRecord:
+		resp.Code = resp.Code + 4
+		resp.Msg = err.Error()
 	default:
 		resp.Data = data
 	}

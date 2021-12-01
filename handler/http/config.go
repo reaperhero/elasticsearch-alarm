@@ -5,22 +5,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/dto"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/errors"
-	"github.com/reaperhero/elasticsearch-alarm/pkg/service"
 	"github.com/sirupsen/logrus"
 	"strconv"
 )
 
-type httphandler struct {
-	service service.WebService
-}
-
-func NewHttpHandler() httphandler {
-	return httphandler{
-		service: service.NewWebService(),
-	}
-}
-
-func (h *httphandler) queryInstance(e echo.Context) error {
+func (h *httphandler) queryAlarmConfig(e echo.Context) error {
 	var (
 		req dto.PageSize
 		err error

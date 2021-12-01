@@ -10,4 +10,8 @@ type WebService interface {
 	GetAlarmConfig(page, size int) (configs []model.AlarmConfig, err error)
 	DeleteAlarmConfig(id int) (err error)
 	UpdateAlarmConfigById(id int, dtoConfig dto.DtoAlarmConfig) (err error)
+	CreateAlarmInstance(instance dto.DtoAlarmInstance) error
+	DeleteAlarmInstance(id int) error
+	ListAlarmInstance(page, size int) (ins []model.AlarmInstance)
+	UpdateAlarmInstance(id int, instance dto.DtoAlarmInstance) error
 }
