@@ -6,4 +6,5 @@ import "errors"
 var (
 	ErrRequestParam = errors.New("request param error")
 	ErrDbOperation  = errors.New("db error")
+	ErrDbRecord     = errors.New("db not found")
 )

@@ -20,11 +20,11 @@ type DtoAlarmConfig struct {
 	CheckInterval int    `json:"check_interval" validate:"required,gt=10"`
 	IsRunning     bool   `json:"is_running"`
 	MailUser      string `json:"mail_user" validate:"email"`
-	DingToken     string `json:"ding_url"`
+	DingToken     string `json:"ding_token"`
 	DingMobiles   string `json:"ding_mobiles"`
 }
 
 type PageSize struct {
-	Page int `validate:"gte=0,lt=100" query:"page"`
-	Size int `validate:"gte=0,lt=50"  query:"size"`
+	Page int `validate:"gte=0,lte=100" query:"page"`
+	Size int `validate:"gte=0,lte=50"  query:"size"`
 }

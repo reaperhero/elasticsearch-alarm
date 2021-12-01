@@ -8,4 +8,6 @@ import (
 type WebService interface {
 	CreateAlarmConfig(config dto.DtoAlarmConfig) error
 	GetAlarmConfig(page, size int) (configs []model.AlarmConfig, err error)
+	DeleteAlarmConfig(id int) (err error)
+	UpdateAlarmConfigById(id int, dtoConfig dto.DtoAlarmConfig) (err error)
 }

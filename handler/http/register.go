@@ -13,11 +13,12 @@ func RunHttpserver() {
 	group := e.Group("/alarm")
 	handler := NewHttpHandler()
 	setRouter(group, handler)
-	// Start server
 	e.Logger.Fatal(e.Start(":80"))
 }
 
 func setRouter(e *echo.Group, handler httphandler) {
 	e.POST("/instance/create", handler.createAlarmConfig)
-	e.GET("/instance", handler.queryInstance)
+	e.GET("/instance/list", handler.queryInstance)
+	e.DELETE("/instance/delete/:id", handler.deleteAlarmConfig)
+	e.POST("/instance/update/:id", handler.updateAlarmConfig)
 }

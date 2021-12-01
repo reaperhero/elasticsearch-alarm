@@ -7,6 +7,7 @@ import (
 	"github.com/reaperhero/elasticsearch-alarm/pkg/errors"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/service"
 	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 type httphandler struct {
@@ -42,10 +43,30 @@ func (h *httphandler) createAlarmConfig(e echo.Context) error {
 		err error
 	)
 
-	_ = e.Bind(req)
+	_ = e.Bind(&req)
 	if err = validator.New().Struct(req); err != nil {
+		logrus.WithField("validator", err).Error()
 		return e.JSON(200, handleErr(errors.ErrRequestParam, nil))
 	}
 	err = h.service.CreateAlarmConfig(req)
+	return e.JSON(200, handleErr(err, nil))
+}
+
+func (h *httphandler) deleteAlarmConfig(e echo.Context) error {
+	id := e.Param("id")
+	ident, err := strconv.Atoi(id)
+	err = h.service.DeleteAlarmConfig(ident)
+	return e.JSON(200, handleErr(err, nil))
+}
+
+func (h *httphandler) updateAlarmConfig(e echo.Context) error {
+	var (
+		req dto.DtoAlarmConfig
+		err error
+	)
+	id := e.Param("id")
+	ident, err := strconv.Atoi(id)
+	_ = e.Bind(&req)
+	err = h.service.UpdateAlarmConfigById(ident, req)
 	return e.JSON(200, handleErr(err, nil))
 }

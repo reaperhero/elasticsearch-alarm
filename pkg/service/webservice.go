@@ -5,6 +5,7 @@ import (
 	pkgerr "github.com/reaperhero/elasticsearch-alarm/pkg/errors"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/model"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/repository"
+	"github.com/reaperhero/elasticsearch-alarm/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,4 +44,28 @@ func (w *webService) GetAlarmConfig(page, size int) (configs []model.AlarmConfig
 		return nil, pkgerr.ErrDbOperation
 	}
 	return configs, nil
+}
+
+func (w *webService) DeleteAlarmConfig(id int) (err error) {
+	err = w.dbRepo.DeleteAlarmConfig(id)
+	if err != nil {
+		return pkgerr.ErrDbOperation
+	}
+	return nil
+}
+
+func (w *webService) UpdateAlarmConfigById(id int, dtoConfig dto.DtoAlarmConfig) (err error) {
+	config := w.dbRepo.GetAlarmConfigById(id)
+	if config == nil {
+		err = pkgerr.ErrDbRecord
+		return
+	}
+	if err := utils.CopyFields(config, dtoConfig); err != nil {
+		logrus.WithField("CopyFields", err).Error()
+	}
+	err = w.dbRepo.CreateAlarmConfig(config)
+	if err != nil {
+		err = pkgerr.ErrDbOperation
+	}
+	return
 }

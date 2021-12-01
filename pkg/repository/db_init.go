@@ -25,7 +25,6 @@ func connectDB() {
 		utils.GetEnvWithDeafult("MYSQL_ADDR", "127.0.0.1:3306"),
 		utils.GetEnvWithDeafult("MYSQL_DB", "alarm"),
 	)
-	fmt.Println(url)
 	gormDB, err := gorm.Open("mysql", url)
 	if err != nil {
 		logrus.Fatalf("[InitDb error ]%s", err)
