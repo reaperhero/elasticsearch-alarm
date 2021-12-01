@@ -1,9 +1,12 @@
 package repository
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	elasv7 "github.com/olivere/elastic/v7"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/model"
+	"github.com/reaperhero/elasticsearch-alarm/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"log"
 	"os"
@@ -69,4 +72,46 @@ func (es *elasticsearchRepo7) SearchMessageWithField(rangeTime time.Duration, in
 		}
 	}
 	return searchResult.TotalHits(), searchList
+}
+
+
+var (
+	// 3s = 3000000000
+	timeOut = utils.GetEnvInt64WithDefault("TIMEOUT", 3000) * 1000000
+)
+
+
+func handleSource(source []byte) (listMessage string) {
+	if bytes.ContainsAny(source, "latency_human") {
+		p := model.HistoryAccessPoint{}
+
+		if err := json.Unmarshal(source, &p); err != nil {
+			logrus.Errorf("[access Unmarshal err %s]", err)
+			return
+		}
+		if err := p.CreateAmessage(); err != nil {
+			return
+		}
+		if p.Amessage.Latency > timeOut {
+			listMessage = "[request uri:" + p.Amessage.URI + ";latency_human:" + p.Amessage.LatencyHuman + "]"
+		}
+	}
+	if bytes.ContainsAny(source, "level") {
+		p := model.HistoryGrpcPoint{}
+		if err := json.Unmarshal(source, &p); err != nil {
+			logrus.Errorf("[grpc Unmarshal err %s]", err)
+			return
+		}
+		if err := p.CreateGmessage(); err != nil {
+			return
+		}
+		if p.Gmessage.Level == "error" {
+			listMessage = "[request grpc:" + p.Gmessage.Msg + "]"
+		}
+	}
+	if bytes.ContainsAny(source, "/usr/local/go/src/runtime/panic.go") {
+		listMessage = "服务重启了"
+	}
+
+	return
 }
