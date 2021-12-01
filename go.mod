@@ -7,6 +7,8 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.6.1
+	github.com/olivere/elastic v6.2.37+incompatible // indirect
+	github.com/olivere/elastic/v6 v6.2.1
 	github.com/olivere/elastic/v7 v7.0.29
 	github.com/sirupsen/logrus v1.8.1
 )

@@ -10,14 +10,14 @@ import (
 )
 
 type webService struct {
-	dbRepo repository.DbRepo
-	esRepo map[string]repository.ElasticsearchRepo
+	dbRepo    repository.DbRepo
+	esRepoMap map[string]repository.ElasticsearchRepo
 }
 
 func NewWebService() WebService {
 	return &webService{
-		dbRepo: repository.NewDbRepo(),
-		esRepo: make(map[string]repository.ElasticsearchRepo, 0),
+		dbRepo:    repository.NewDbRepo(),
+		esRepoMap: make(map[string]repository.ElasticsearchRepo, 0),
 	}
 }
 
@@ -115,3 +115,5 @@ func (w *webService) UpdateAlarmInstance(id int, instance dto.DtoAlarmInstance) 
 	}
 	return nil
 }
+
+

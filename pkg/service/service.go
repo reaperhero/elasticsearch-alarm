@@ -14,4 +14,5 @@ type WebService interface {
 	DeleteAlarmInstance(id int) error
 	ListAlarmInstance(page, size int) (ins []model.AlarmInstance)
 	UpdateAlarmInstance(id int, instance dto.DtoAlarmInstance) error
+	MonitorElasticsearchAlarm() error
 }

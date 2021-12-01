@@ -6,24 +6,22 @@ import (
 	"github.com/reaperhero/elasticsearch-alarm/pkg/service"
 )
 
-
 type httphandler struct {
 	service service.WebService
 }
 
-func NewHttpHandler() httphandler {
+func NewHttpHandler(webService service.WebService) httphandler {
 	return httphandler{
-		service: service.NewWebService(),
+		service: webService,
 	}
 }
 
-
-func RunHttpserver() {
+func RunHttpserver(webService service.WebService) {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	handler := NewHttpHandler()
+	handler := NewHttpHandler(webService)
 	configRouter(e.Group("/alarm/config"), handler)
 	instanceRouter(e.Group("/alarm/instance"), handler)
 	e.Logger.Fatal(e.Start(":80"))

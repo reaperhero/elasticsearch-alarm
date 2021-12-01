@@ -29,3 +29,8 @@ type AlarmInstance struct {
 	EsUser string `gorm:"es_user" json:"es_user"`
 	EsPass string `gorm:"es_pass" json:"es_pass"`
 }
+
+type AlarmMsg struct {
+	Type string
+	Msg  string
+}
