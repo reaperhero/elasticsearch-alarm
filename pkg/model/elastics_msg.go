@@ -7,6 +7,15 @@ import (
 	"time"
 )
 
+type SearchRequestBody struct {
+	IndexName string
+	Interval  time.Duration
+	QType     string
+	FieldK    string
+	FieldV    string
+}
+
+
 type HistoryAccessPoint struct {
 	Timestamp time.Time `json:"@timestamp"`
 	Message   string    `json:"message,omitempty"`

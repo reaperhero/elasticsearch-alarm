@@ -1,5 +1,7 @@
 package repository
 
+import "github.com/reaperhero/elasticsearch-alarm/pkg/model"
+
 type ElasticsearchRepo interface {
-	ListIndexNames() (result []string)
+	SearchMessageWithText(request model.SearchRequestBody, limit int) ([][]byte, error)
 }

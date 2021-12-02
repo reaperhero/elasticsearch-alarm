@@ -22,8 +22,8 @@ func NewWebService() WebService {
 }
 
 func (w *webService) CreateAlarmConfig(config dto.DtoAlarmConfig) error {
-	if err := w.dbRepo.CreateAlarmConfig(&model.AlarmConfig{
-		EsIndex:       config.EsIndex,
+	if err := w.dbRepo.CreateAlarmConfig(model.AlarmConfig{
+		EsIndiceName:  config.EsIndex,
 		MsgType:       config.MsgType,
 		MsgDefine:     config.MsgDefine,
 		CheckInterval: config.CheckInterval,
@@ -56,7 +56,7 @@ func (w *webService) DeleteAlarmConfig(id int) (err error) {
 
 func (w *webService) UpdateAlarmConfigById(id int, dtoConfig dto.DtoAlarmConfig) (err error) {
 	config := w.dbRepo.GetAlarmConfigById(id)
-	if config == nil {
+	if &config == nil {
 		err = pkgerr.ErrDbRecord
 		return
 	}
@@ -71,10 +71,10 @@ func (w *webService) UpdateAlarmConfigById(id int, dtoConfig dto.DtoAlarmConfig)
 }
 
 func (w *webService) CreateAlarmInstance(instance dto.DtoAlarmInstance) error {
-	if i := w.dbRepo.GetInstanceByUrl(instance.EsUrl); i != nil {
+	if i := w.dbRepo.GetInstanceByUrl(instance.EsUrl); &i != nil {
 		return pkgerr.ErrDbExistRecord
 	}
-	if err := w.dbRepo.CreateAlarmInstance(&model.AlarmInstance{
+	if err := w.dbRepo.CreateAlarmInstance(model.AlarmInstance{
 		EsName: instance.EsName,
 		EsUrl:  instance.EsUrl,
 		EsUser: instance.EsUser,
@@ -87,7 +87,7 @@ func (w *webService) CreateAlarmInstance(instance dto.DtoAlarmInstance) error {
 }
 
 func (w *webService) DeleteAlarmInstance(id int) error {
-	if w.dbRepo.GetAlarmConfigById(id) != nil {
+	if m := w.dbRepo.GetAlarmConfigById(id); &m != nil {
 		return pkgerr.ErrDbRecord
 	}
 	if err := w.dbRepo.DeleteAlarmInstance(id); err != nil {
@@ -103,7 +103,7 @@ func (w *webService) ListAlarmInstance(page, size int) []model.AlarmInstance {
 
 func (w *webService) UpdateAlarmInstance(id int, instance dto.DtoAlarmInstance) error {
 	oldInstance := w.dbRepo.GetInstanceById(id)
-	if oldInstance != nil {
+	if &oldInstance != nil {
 		return pkgerr.ErrDbRecord
 	}
 	if err := utils.CopyFields(oldInstance, &instance); err != nil {

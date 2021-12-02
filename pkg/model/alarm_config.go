@@ -1,12 +1,15 @@
 package model
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
+	"strconv"
+	"strings"
 )
 
 type AlarmConfig struct {
 	gorm.Model
-	EsIndex       string `gorm:"es_index" json:"es_index"`
+	EsIndiceName  string `gorm:"es_indice_name" json:"es_indice_name"`
 	MsgType       string `gorm:"msg_type" json:"msg_type"`
 	MsgDefine     string `gorm:"msg_type" json:"msg_define"`
 	CheckInterval int    `gorm:"check_interval" json:"check_interval"`
@@ -18,8 +21,23 @@ type AlarmConfig struct {
 
 type AlarmConfigInstance struct {
 	gorm.Model
-	ConfigID   int `gorm:"config_id" json:"config_id"`
-	InstanceId int `gorm:"instance_id" json:"instance_id"`
+	InstanceId uint   `gorm:"instance_id" json:"instance_id"`
+	ConfigIds  string `gorm:"config_ids" binding:"dive" json:"config_ids"`
+	Ids        []uint `gorm:"-" json:"ids"`
+}
+
+func (a *AlarmConfigInstance) BeforeCreate(tx *gorm.DB) (err error) {
+	a.ConfigIds = strings.Trim(strings.Join(strings.Split(fmt.Sprint(a.Ids), " "), ","), "[]")
+	return
+}
+func (a *AlarmConfigInstance) AfterFind(tx *gorm.DB) (err error) {
+	ls := strings.Split(a.ConfigIds, ",")
+	for _, l := range ls {
+		if intl, err := strconv.ParseUint(l, 10, 64); err != nil {
+			a.Ids = append(a.Ids, uint(intl))
+		}
+	}
+	return
 }
 
 type AlarmInstance struct {

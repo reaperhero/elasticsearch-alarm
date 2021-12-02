@@ -7,16 +7,18 @@ import (
 )
 
 type DbRepo interface {
-	CreateAlarmConfig(ac *model.AlarmConfig) error
+	CreateAlarmConfig(ac model.AlarmConfig) error
 	GetAlarmConfig(page, size int) (configs []model.AlarmConfig, err error)
 	DeleteAlarmConfig(id int) error
-	GetAlarmConfigById(id int) (config *model.AlarmConfig)
-	GetInstanceByUrl(url string) *model.AlarmInstance
-	CreateAlarmInstance(ai *model.AlarmInstance) error
+	GetAlarmConfigById(id int) model.AlarmConfig
+	GetInstanceByUrl(url string) model.AlarmInstance
+	CreateAlarmInstance(ai model.AlarmInstance) error
 	DeleteAlarmInstance(id int) error
-	GetInstanceById(id int) *model.AlarmInstance
+	GetInstanceById(id int) model.AlarmInstance
 	ListAlarmInstance(page, size int) (ins []model.AlarmInstance)
-	SaveAlarmInstance(instance *model.AlarmInstance) error
+	SaveAlarmInstance(instance model.AlarmInstance) error
+	ListAlarmInstanceWithConfig() map[model.AlarmInstance][]model.AlarmConfig
+	CreateAlarmInstanceWithConfig(instance model.AlarmInstance, configs []model.AlarmConfig) error
 }
 
 type dbRepo struct {
@@ -29,8 +31,8 @@ func NewDbRepo() DbRepo {
 	}
 }
 
-func (d *dbRepo) CreateAlarmConfig(ac *model.AlarmConfig) error {
-	return d.db.Save(ac).Error
+func (d *dbRepo) CreateAlarmConfig(ac model.AlarmConfig) error {
+	return d.db.Save(&ac).Error
 }
 
 func (d *dbRepo) GetAlarmConfig(page, size int) (configs []model.AlarmConfig, err error) {
@@ -41,13 +43,20 @@ func (d *dbRepo) GetAlarmConfig(page, size int) (configs []model.AlarmConfig, er
 	return
 }
 
-func (d *dbRepo) GetAlarmConfigById(id int) *model.AlarmConfig {
+func (d *dbRepo) GetAlarmConfigById(id int) model.AlarmConfig {
 	config := model.AlarmConfig{}
 	if err := d.db.Find(&config, id).Error; err != nil {
 		logrus.Infof("[dbRepo.GetAlarmConfigById] %s", err)
+	}
+	return config
+}
+
+func (d *dbRepo) getAlarmConfigByIds(ids []int) (configs []model.AlarmConfig) {
+	if err := d.db.Find(&configs, ids).Error; err != nil {
+		logrus.Infof("[dbRepo.GetAlarmConfigById] %s", err)
 		return nil
 	}
-	return &config
+	return
 }
 
 func (d *dbRepo) DeleteAlarmConfig(id int) error {
@@ -59,25 +68,32 @@ func (d *dbRepo) DeleteAlarmConfig(id int) error {
 	}
 }
 
-func (d *dbRepo) GetInstanceByUrl(url string) *model.AlarmInstance {
+func (d *dbRepo) GetInstanceByUrl(url string) model.AlarmInstance {
 	instance := model.AlarmInstance{}
 	if err := d.db.Where("es_url=?", url).Find(&instance).Error; err != nil {
 		logrus.Infof("[dbRepo.GetAlarmConfigById] %s", err)
-		return nil
 	}
-	return &instance
+	return instance
 }
 
-func (d *dbRepo) GetInstanceById(id int) *model.AlarmInstance {
+func (d *dbRepo) getInstanceById(id uint) model.AlarmInstance {
 	instance := model.AlarmInstance{}
 	if err := d.db.Find(&instance, id).Error; err != nil {
-		return nil
+		logrus.Infof("[dbRepo.GetAlarmConfigById] %s", err)
 	}
-	return &instance
+	return instance
 }
 
-func (d *dbRepo) CreateAlarmInstance(ai *model.AlarmInstance) error {
-	return d.db.Save(ai).Error
+func (d *dbRepo) GetInstanceById(id int) model.AlarmInstance {
+	instance := model.AlarmInstance{}
+	if err := d.db.Find(&instance, id).Error; err != nil {
+		logrus.WithField("error", err).Error("[dbRepo.GetInstanceById]")
+	}
+	return instance
+}
+
+func (d *dbRepo) CreateAlarmInstance(ai model.AlarmInstance) error {
+	return d.db.Save(&ai).Error
 }
 
 func (d *dbRepo) DeleteAlarmInstance(id int) error {
@@ -96,10 +112,41 @@ func (d *dbRepo) ListAlarmInstance(page, size int) (ins []model.AlarmInstance) {
 	return
 }
 
-func (d *dbRepo) SaveAlarmInstance(instance *model.AlarmInstance) error {
-	if err := d.db.Save(instance).Error; err != nil {
+func (d *dbRepo) SaveAlarmInstance(instance model.AlarmInstance) error {
+	if err := d.db.Save(&instance).Error; err != nil {
 		logrus.Infof("[dbRepo.SaveAlarmInstance] %s", err)
 		return err
 	}
 	return nil
+}
+
+func (d *dbRepo) CreateAlarmInstanceWithConfig(instance model.AlarmInstance, configs []model.AlarmConfig) error {
+	cfgInstance := model.AlarmConfigInstance{
+		InstanceId: instance.ID,
+	}
+	var ids []uint
+	for _, config := range configs {
+		ids = append(ids, config.ID)
+		cfgInstance.Ids = ids
+	}
+	return d.db.Save(&cfgInstance).Error
+}
+
+func (d *dbRepo) ListAlarmInstanceWithConfig() map[model.AlarmInstance][]model.AlarmConfig {
+	var confidantes []model.AlarmConfigInstance
+	if err := d.db.Find(&confidantes).Error; err != nil {
+		logrus.WithField("error", err).Errorf("[dbRepo.AlarmConfigInstance]")
+		return nil
+	}
+	result := make(map[model.AlarmInstance][]model.AlarmConfig, 0)
+	for _, confidante := range confidantes {
+		i := d.getInstanceById(confidante.InstanceId)
+		cfs := d.getAlarmConfigByIds([]int{1})
+		if &i == nil || cfs == nil {
+			logrus.Errorf("[dbRepo.ListAlarmInstanceWithConfig] db get nil")
+			return nil
+		}
+		result[i] = cfs
+	}
+	return result
 }
