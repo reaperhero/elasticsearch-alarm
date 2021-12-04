@@ -7,11 +7,13 @@ import (
 	"github.com/reaperhero/elasticsearch-alarm/pkg/repository"
 	"github.com/reaperhero/elasticsearch-alarm/pkg/utils"
 	"github.com/sirupsen/logrus"
+	"sync"
 )
 
 type webService struct {
 	dbRepo    repository.DbRepo
 	esRepoMap map[string]repository.ElasticsearchRepo
+	lock      sync.Mutex
 }
 
 func NewWebService() WebService {

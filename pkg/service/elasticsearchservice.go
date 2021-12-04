@@ -17,6 +17,8 @@ import (
 
 func (w *webService) ElasticsConfigMonitor() (queryChan chan []byte) {
 	go func() {
+		w.lock.Lock()
+		defer w.lock.Unlock()
 		if err := w.initElasticsearchConnect(); err != nil {
 			logrus.Errorf("[webService.ElasticsConfigMonitor]%s", err)
 			return
@@ -24,7 +26,13 @@ func (w *webService) ElasticsConfigMonitor() (queryChan chan []byte) {
 	}()
 	conMap := w.dbRepo.ListAlarmInstanceWithConfig()
 	for instance, configs := range conMap {
-		conn := w.esRepoMap[instance.EsUrl]
+		var (
+			conn repository.ElasticsearchRepo
+			ok   bool
+		)
+		if conn, ok = w.esRepoMap[instance.EsUrl]; !ok {
+			continue
+		}
 		for _, config := range configs {
 			go func(config model.AlarmConfig) {
 				for {
